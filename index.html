@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parnika Patole | Interactive 3D Workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- Core Cyber Theme --- */
+        :root {
+            --bg-dark: #020308;
+            --surface-panel: rgba(10, 15, 30, 0.55);
+            --surface-sub: rgba(20, 26, 46, 0.6);
+            --border-subtle: rgba(102, 252, 241, 0.15);
+            
+            --neon-cyan: #66fcf1;
+            --neon-blue: #0575e6;
+            --neon-glow: rgba(102, 252, 241, 0.4);
+            
+            --font-header: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-body);
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* --- High-Tech Ambient 3D Space Background --- */
+        #ambient-3d-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0a0f24 0%, #020308 100%);
+        }
+
+        /* --- Entrance Revelations --- */
+        @keyframes systemReveal {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        .workspace-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2.5rem;
+            max-width: 1300px;
+            margin: auto;
+            position: relative;
+            z-index: 10;
+            transform-style: preserve-3d;
+        }
+
+        /* --- Dynamic 3D Sidebar Panel --- */
+        .profile-sidebar {
+            background: var(--surface-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 2rem;
+            height: max-content;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255,255,255,0.1);
+            animation: systemReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform-style: preserve-3d;
+            transform: translateZ(20px);
+        }
+
+        .avatar-box {
+            width: 120px;
+            height: 120px;
+            margin: auto;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #0f172a, #04060b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--neon-cyan);
+            font-size: 3rem;
+            border: 1px solid rgba(102, 252, 241, 0.2);
+            box-shadow: inset 0 0 20px rgba(102, 252, 241, 0.1);
+            transform: translateZ(40px);
+            transition: border-color 0.3s ease;
+        }
+
+        .profile-name {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 1.6rem;
+            font-family: var(--font-header);
+            font-weight: 700;
+            transform: translateZ(30px);
+        }
+
+        .profile-tag {
+            display: block;
+            text-align: center;
+            margin-top: 0.6rem;
+            color: var(--neon-cyan);
+            font-size: 0.88rem;
+            font-weight: 500;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+            transform: translateZ(25px);
+        }
+
+        .sys-separator {
+            height: 1px;
+            width: 100%;
+            margin: 1.5rem 0;
+            background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+            transform: translateZ(15px);
+        }
+
+        .meta-link-channel {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            transform: translateZ(20px);
+        }
+
+        .meta-link-channel:hover {
+            background: var(--surface-sub);
+            border-color: rgba(102, 252, 241, 0.2);
+            transform: translateZ(35px) translateX(4px);
+        }
+
+        .meta-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--surface-sub);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--neon-cyan);
+            font-size: 1.1rem;
+        }
+
+        /* --- Dynamic 3D Main Workspace Dashboard --- */
+        .content-workspace {
+            background: var(--surface-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 3.5rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.1);
+            animation: systemReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform-style: preserve-3d;
+        }
+
+        .navigation-hub {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 3.5rem;
+            transform: translateZ(25px);
+        }
+
+        .hub-tab {
+            border: 1px solid transparent;
+            background: var(--surface-sub);
+            color: var(--text-muted);
+            padding: 0.8rem 1.6rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hub-tab.active-tab,
+        .hub-tab:hover {
+            background: rgba(102, 252, 241, 0.12);
+            color: var(--neon-cyan);
+            border-color: rgba(102, 252, 241, 0.3);
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .workspace-view {
+            display: none;
+            animation: systemReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform-style: preserve-3d;
+        }
+
+        .workspace-view.active-view {
+            display: block;
+        }
+
+        .view-title {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            font-family: var(--font-header);
+            transform: translateZ(30px);
+        }
+
+        .about-para {
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+            transform: translateZ(20px);
+        }
+
+        .sub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.8rem;
+            transform-style: preserve-3d;
+        }
+
+        .sub-card {
+            background: var(--surface-sub);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2rem;
+            transform-style: preserve-3d;
+            transition: all 0.3s ease;
+        }
+        
+        .sub-card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .sub-card i {
+            color: var(--neon-cyan);
+            font-size: 2.2rem;
+            margin-bottom: 1.2rem;
+            transform: translateZ(25px);
+        }
+
+        .sub-card h4 {
+            font-family: var(--font-header);
+            font-size: 1.25rem;
+            margin-bottom: 0.8rem;
+            transform: translateZ(20px);
+        }
+
+        .sub-card p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 0.92rem;
+            transform: translateZ(15px);
+        }
+
+        /* --- Project Grid Systems --- */
+        .showcase-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .project-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.8rem;
+            transform-style: preserve-3d;
+        }
+
+        .project-node-card {
+            background: var(--surface-sub);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: border-color 0.3s ease;
+        }
+
+        .project-node-card:hover {
+            border-color: rgba(102, 252, 241, 0.4);
+        }
+
+        .card-graphic {
+            height: 130px;
+            background: linear-gradient(135deg, #0b0d16, #141829);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: rgba(102, 252, 241, 0.15);
+            border-bottom: 1px solid var(--border-subtle);
+            transform: translateZ(15px);
+        }
+
+        .card-body {
+            padding: 1.8rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            transform-style: preserve-3d;
+        }
+
+        .card-body h5 {
+            font-family: var(--font-header);
+            font-size: 1.2rem;
+            margin-bottom: 0.6rem;
+            color: #fff;
+            transform: translateZ(25px);
+        }
+
+        .card-body p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            transform: translateZ(15px);
+        }
+
+        .pill-cluster {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: auto;
+            margin-bottom: 1.5rem;
+            transform: translateZ(10px);
+        }
+
+        .tag-pill {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .card-action-link {
+            color: var(--neon-cyan);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transform: translateZ(20px);
+        }
+
+        /* --- Academic Achievement Cards --- */
+        .cert-card {
+            background: var(--surface-sub);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 2.2rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 2rem;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+
+        .cert-meta-tag {
+            display: inline-block;
+            font-size: 0.78rem;
+            color: var(--neon-cyan);
+            background: rgba(102, 252, 241, 0.05);
+            border: 1px solid rgba(102, 252, 241, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            transform: translateZ(15px);
+        }
+
+        .cert-card h3 {
+            font-family: var(--font-header);
+            font-size: 1.45rem;
+            margin-bottom: 0.6rem;
+            color: #fff;
+            transform: translateZ(20px);
+        }
+
+        .cert-preview-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateZ(30px);
+        }
+
+        .cert-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+
+        .cert-overlay-action {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 4, 8, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: var(--neon-cyan);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .cert-preview-wrapper:hover .cert-overlay-action { opacity: 1; }
+
+        /* --- Interactive Showcase Modals --- */
+        .system-modal-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 3, 6, 0.95);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .system-modal-layer.modal-open { opacity: 1; pointer-events: auto; }
+
+        .modal-content-stage { max-width: 900px; width: 100%; position: relative; }
+
+        .modal-view-render { width: 100%; height: auto; max-height: 85vh; object-fit: contain; border-radius: 14px; box-shadow: 0 50px 100px rgba(0,0,0,0.8); }
+
+        .modal-close-trigger { position: absolute; top: -3.5rem; right: 0; background: transparent; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+
+        /* --- Technical Resume Frame --- */
+        .resume-shell {
+            background: rgba(7, 9, 16, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transform-style: preserve-3d;
+        }
+
+        .resume-header-flex { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; transform: translateZ(20px); }
+
+        .action-download-btn {
+            background: rgba(102, 252, 241, 0.05);
+            border: 1px solid rgba(102, 252, 241, 0.25);
+            color: var(--neon-cyan);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-download-btn:hover {
+            background: rgba(102, 252, 241, 0.15);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-glow);
+        }
+
+        .resume-section-title { font-family: var(--font-header); color: var(--neon-cyan); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; font-weight: 600; transform: translateZ(15px); }
+
+        .resume-entry-node { margin-bottom: 1rem; transform: translateZ(10px); }
+
+        .resume-entry-title { display: flex; justify-content: space-between; font-weight: 600; font-size: 1.1rem; }
+
+        .resume-entry-sub { color: var(--text-muted); font-size: 0.88rem; margin: 0.2rem 0 0.5rem 0; }
+
+        /* --- Connection Layer Form --- */
+        .gateway-form { display: flex; flex-direction: column; gap: 1.2rem; transform: translateZ(20px); }
+
+        .gateway-form input, .gateway-form textarea {
+            background: rgba(7, 8, 12, 0.6);
+            border: 1px solid var(--border-subtle);
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .gateway-form input:focus, .gateway-form textarea:focus { outline: none; border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(102, 252, 241, 0.1); }
+
+        .btn-submit {
+            width: max-content; padding: 1rem 2rem; border: 1px solid rgba(102, 252, 241, 0.3); border-radius: 12px;
+            background: rgba(102, 252, 241, 0.05); color: var(--neon-cyan); cursor: pointer; font-weight: 600; transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover { background: rgba(102, 252, 241, 0.15); border-color: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-glow); }
+
+        /* --- Media Adaptations --- */
+        @media(max-width:960px){
+            .workspace-container { grid-template-columns: 1fr; }
+            .profile-sidebar { position: relative; top: 0; }
+            .cert-card { grid-template-columns: 1fr; gap: 1.5rem; }
+        }
+        @media(max-width:640px) {
+            body { padding: 2rem 1rem; }
+            .content-workspace { padding: 2rem 1.5rem; }
+            .resume-header-flex { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <canvas id="ambient-3d-canvas"></canvas>
+
+    <div class="workspace-container">
+
+        <aside class="profile-sidebar" data-tilt data-tilt-max="12" data-tilt-speed="800" data-tilt-perspective="1000">
+            <div class="avatar-box">
+                <i class="fa-solid fa-code"></i>
+            </div>
+
+            <h1 class="profile-name">Parnika Patole</h1>
+            <span class="profile-tag">BSc IT Student / Developer</span>
+
+            <div class="sys-separator"></div>
+
+            <a href="https://github.com/parnikapatole" target="_blank" class="meta-link-channel">
+                <div class="meta-icon"><i class="fa-brands fa-github"></i></div>
+                <div>
+                    <div style="font-size:0.85rem;">GitHub</div>
+                    <small style="color:var(--text-muted);">parnikapatole</small>
+                </div>
+            </a>
+
+            <a href="https://www.linkedin.com/in/parnika-patole-299905385/" target="_blank" class="meta-link-channel">
+                <div class="meta-icon"><i class="fa-brands fa-linkedin-in"></i></div>
+                <div>
+                    <div style="font-size:0.85rem;">LinkedIn</div>
+                    <small style="color:var(--text-muted);">Parnika Patole</small>
+                </div>
+            </a>
+
+            <a href="https://instagram.com/_parnika_.0602" target="_blank" class="meta-link-channel">
+                <div class="meta-icon"><i class="fa-brands fa-instagram"></i></div>
+                <div>
+                    <div style="font-size:0.85rem;">Instagram</div>
+                    <small style="color:var(--text-muted);">_parnika_.0602</small>
+                </div>
+            </a>
+
+            <a href="mailto:parnikapatole@gmail.com" class="meta-link-channel">
+                <div class="meta-icon"><i class="fa-solid fa-envelope"></i></div>
+                <div>
+                    <div style="font-size:0.85rem;">Email Gateway</div>
+                    <small style="color:var(--text-muted);">parnikapatole@gmail.com</small>
+                </div>
+            </a>
+        </aside>
+
+        <main class="content-workspace" data-tilt data-tilt-max="4" data-tilt-speed="1000" data-tilt-perspective="2000" data-tilt-glare data-tilt-max-glare="0.05">
+            
+            <nav class="navigation-hub">
+                <button class="hub-tab active-tab" data-route="about-pane">About</button>
+                <button class="hub-tab" data-route="skills-pane">Skills</button>
+                <button class="hub-tab" data-route="projects-pane">Projects</button>
+                <button class="hub-tab" data-route="certifications-pane">Achievements</button>
+                <button class="hub-tab" data-route="resume-pane">Resume</button>
+                <button class="hub-tab" data-route="contact-pane">Contact</button>
+            </nav>
+
+            <div id="about-pane" class="workspace-view active-view">
+                <h2 class="view-title">About Me</h2>
+                <p class="about-para">
+                    I am a motivated BSc IT student with a strong passion for technology and innovation, committed to building scalable digital solutions that combine user-focused design with efficient backend development. I enjoy developing end-to-end systems that solve practical challenges through clean coding, cybersecurity awareness, and data-driven research.
+                </p>
+                <p class="about-para" style="margin-bottom: 3rem;">
+                    My primary interest lies in designing reliable Frontend structures while ensuring smooth and intuitive user experiences. I strive to create secure, high-performing applications that maintain data integrity and deliver meaningful real-world impact. With a continuous learning mindset, I am always exploring emerging technologies to strengthen my technical expertise and contribute to innovative IT solutions.
+                </p>
+
+                <div class="sub-grid" style="margin-top: 2.5rem;">
+                    <div class="sub-card" data-tilt data-tilt-max="15">
+                        <i class="fa-solid fa-laptop-code"></i>
+                        <h4>Web Frameworks</h4>
+                        <p>Constructing responsive, high-speed applications with clean logical flows.</p>
+                    </div>
+                    <div class="sub-card" data-tilt data-tilt-max="15">
+                        <i class="fa-solid fa-compass-drafting"></i>
+                        <h4>UI / UX Design</h4>
+                        <p>Designing clean, high-tech, and intuitive real-time dashboard experiences.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="skills-pane" class="workspace-view">
+                <h2 class="view-title">Technical Skills</h2>
+                <div class="sub-grid">
+                    <div class="sub-card" data-tilt data-tilt-max="15"><i class="fa-solid fa-globe"></i><h4>Web Development</h4><p>Responsive website development and interactive web architectures.</p></div>
+                    <div class="sub-card" data-tilt data-tilt-max="15"><i class="fa-brands fa-html5"></i><h4>HTML5 & CSS3</h4><p>Robust presentation layouts using semantic markup structures.</p></div>
+                    <div class="sub-card" data-tilt data-tilt-max="15"><i class="fa-brands fa-python"></i><h4>UI AND UX</h4><p>Backend application logic and handling framework packages like Streamlit.</p></div>
+                    <div class="sub-card" data-tilt data-tilt-max="15"><i class="fa-brands fa-php"></i><h4>PHP</h4><p>Constructing modular dynamic rendering components and database managers.</p></div>
+                    <div class="sub-card" data-tilt data-tilt-max="15"><i class="fa-brands fa-java"></i><h4>Java Core</h4><p>Structuring solid object-oriented logic parameters and structures.</p></div>
+                    <div class="sub-card" data-tilt data-tilt-max="15"><i class="fa-solid fa-database"></i><h4>MySQL</h4><p>Relational schema layouts, integrity controls, and compound queries.</p></div>
+                </div>
+            </div>
+
+            <div id="projects-pane" class="workspace-view">
+    <h2 class="view-title">Engineered Solution Systems</h2>
+    <div class="showcase-filters">
+        <button class="hub-tab active-tab filter-node" data-filter="all">Complete Array</button>
+        <button class="hub-tab filter-node" data-filter="web-node">Web Applications</button>
+        <button class="hub-tab filter-node" data-filter="ai-node">AI & NLP Stacks</button>
+    </div>
+
+    <div class="project-matrix">
+        <div class="project-node-card" data-group="web-node" data-tilt data-tilt-max="8">
+            <div class="card-graphic"><i class="fa-solid fa-pager"></i></div>
+            <div class="card-body">
+                <h5>Landing Page</h5>
+                <p>Modern, responsive landing page design focused on clean UI/UX.</p>
+                <div class="pill-cluster"><span class="tag-pill">HTML</span><span class="tag-pill">CSS</span></div>
+                <a href="https://parnikapatole.github.io/Landing-page/" target="_blank" class="card-action-link">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+        </div>
+
+        <div class="project-node-card" data-group="web-node" data-tilt data-tilt-max="8">
+            <div class="card-graphic"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="card-body">
+                <h5>Job Portal</h5>
+                <p>A web-based platform for job seekers to browse and manage listings.</p>
+                <div class="pill-cluster"><span class="tag-pill">Web Dev</span></div>
+                <a href="https://parnikapatole.github.io/Job-portal/" target="_blank" class="card-action-link">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+        </div>
+
+        <div class="project-node-card" data-group="web-node" data-tilt data-tilt-max="8">
+            <div class="card-graphic"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="card-body">
+                <h5>Resume Builder</h5>
+                <p>Interactive tool for creating and formatting professional resumes.</p>
+                <div class="pill-cluster"><span class="tag-pill">Web Dev</span></div>
+                <a href="https://parnikapatole.github.io/Resume-Builder/" target="_blank" class="card-action-link">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+        </div>
+
+        <div class="project-node-card" data-group="web-node" data-tilt data-tilt-max="8">
+            <div class="card-graphic"><i class="fa-solid fa-code"></i></div>
+            <div class="card-body">
+                <h5>Chatbot UI</h5>
+                <p>A collection of UI components developed for Code Alpha.</p>
+                <div class="pill-cluster"><span class="tag-pill">HTML</span><span class="tag-pill">CSS</span></div>
+                <a href="https://parnikapatole.github.io/Code-alpha-UI-T2/" target="_blank" class="card-action-link">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+        </div>
+
+        <div class="project-node-card" data-group="ai-node" data-tilt data-tilt-max="8">
+            <div class="card-graphic"><i class="fa-solid fa-message"></i></div>
+            <div class="card-body">
+                <h5>Novo Chatterix Engine</h5>
+                <p>An interactive data chatbot interface utilizing NLP.</p>
+                <div class="pill-cluster"><span class="tag-pill">Python</span><span class="tag-pill">Streamlit</span></div>
+                <a href="https://code-alpha-ai-t2-ps3rgx6pqjg7cr6mv4axhq.streamlit.app/" target="_blank" class="card-action-link">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+        </div>
+
+        <div class="project-node-card" data-group="ai-node" data-tilt data-tilt-max="8">
+            <div class="card-graphic"><i class="fa-solid fa-language"></i></div>
+            <div class="card-body">
+                <h5>Language Translator</h5>
+                <p>A natural language translation system for text processing.</p>
+                <div class="pill-cluster"><span class="tag-pill">Python</span><span class="tag-pill">NLP</span></div>
+                <a href="https://parnikapatole.github.io/Code-alpha-AI-T1/" target="_blank" class="card-action-link">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+        </div>
+
+        <div class="project-node-card" data-group="web-node" data-tilt data-tilt-max="8">
+            <div class="card-graphic"><i class="fa-solid fa-chart-pie"></i></div>
+            <div class="card-body">
+                <h5>Data Science Dashboard</h5>
+                <p>Monitoring panel featuring complex metrics and analytics.</p>
+                <div class="pill-cluster"><span class="tag-pill">Streamlit</span><span class="tag-pill">Data Science</span></div>
+                <a href="https://sqrock-data-science-week2-task1-dxps6lypnmpjaxedgogevd.streamlit.app/" target="_blank" class="card-action-link">View Project <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <div id="certifications-pane" class="workspace-view">
+    <h2 class="view-title">Research & Academic Milestones</h2>
+    
+    <div class="cert-card" data-tilt data-tilt-max="4">
+        <div>
+            <span class="cert-meta-tag">National Seminar Honors</span>
+            <h3>Best Paper Presentation Award</h3>
+            <p class="about-para" style="margin-bottom:0; font-size:0.95rem;">Awarded for excellence at the one-day National Seminar on "AGE OF AI: PAVING THE PATH TO THE FUTURE," sponsored by ICSSR, Mumbai on February 7th, 2026.</p>
+        </div>
+        <div class="cert-preview-wrapper" onclick="triggerCinematicView('WhatsApp Image 2026-05-25 at 7.09.44 PM.jpeg')">
+            <img src="WhatsApp Image 2026-05-25 at 7.09.44 PM.jpeg" class="cert-img" alt="Best Paper Presentation Certificate">
+            <div class="cert-overlay-action"><i class="fa-solid fa-expand-arrows-alt"></i><span>EXPAND IMAGE</span></div>
+        </div>
+    </div>
+
+    <div class="cert-card" data-tilt data-tilt-max="4">
+        <div>
+            <span class="cert-meta-tag">Peer-Reviewed Journal Publication</span>
+            <h3>Research Publication Certificate</h3>
+            <p class="about-para" style="margin-bottom:0; font-size:0.95rem;">Published paper titled "PREDICTING RISK, NOT DATES: ARTIFICIAL INTELLIGENCE FOR FUTURE EARTHQUAKE PREPAREDNESS" in the AMIERJ Journal, Volume-XV, Issue-I, 2026.</p>
+        </div>
+        <div class="cert-preview-wrapper" onclick="triggerCinematicView('WhatsApp Image 2026-05-25 at 7.09.45 PM.jpeg')">
+            <img src="WhatsApp Image 2026-05-25 at 7.09.45 PM.jpeg" class="cert-img" alt="Research Publication Certificate">
+            <div class="cert-overlay-action"><i class="fa-solid fa-expand-arrows-alt"></i><span>EXPAND IMAGE</span></div>
+        </div>
+    </div>
+</div>
+
+           <div id="resume-pane" class="workspace-view">
+    <h2 class="view-title">Professional Resume</h2>
+    <div class="resume-shell">
+        <div class="resume-header-flex">
+            <div>
+                <h3 style="font-family:var(--font-header); font-size:1.6rem; color:#fff;">Parnika Shailesh Patole</h3>
+                <p style="color:var(--neon-cyan); font-size:0.9rem; margin-top:0.2rem; font-weight:500;">BSc Information Technology Student</p>
+                <div style="margin-top: 10px;">
+                    <a href="https://github.com/parnikapatole" target="_blank" style="color: var(--text-muted); margin-right: 15px; text-decoration: none;"><i class="fa-brands fa-github"></i> GitHub</a>
+                    <a href="https://www.linkedin.com/in/parnika-patole-299905385/" target="_blank" style="color: var(--text-muted); text-decoration: none;"><i class="fa-brands fa-linkedin-in"></i> LinkedIn</a>
+                </div>
+            </div>
+            <a href="resume.pdf" download="Parnika_Patole_Resume.pdf" class="action-download-btn"><i class="fa-solid fa-cloud-arrow-down"></i> Download PDF Resume</a>
+        </div>
+        <div class="sys-separator"></div>
+        
+        <div class="resume-entry-node">
+            <h4 class="resume-section-title">Career Objective</h4>
+            <p class="about-para" style="font-size:0.95rem;">Motivated and passionate B.Sc IT student with skills in frontend and backend web development technologies including HTML, CSS, JavaScript, SQL, MySQL, and PHP. Interested in gaining practical experience through IT and Web Development internships while building modern and responsive web applications.</p>
+        </div>
+        
+        <div class="sys-separator"></div>
+        
+        <div class="resume-entry-node">
+            <h4 class="resume-section-title">Education Architecture</h4>
+            <div class="resume-entry-title"><span>Bachelor of Science in Information Technology, Sem V</span><span style="color:var(--neon-cyan);">2026</span></div>
+            <div class="resume-entry-sub">Ksd's Model College</div>
+            
+            <div class="resume-entry-title" style="margin-top:10px;"><span>HSC (Science)</span><span style="color:var(--neon-cyan);">2024</span></div>
+            <div class="resume-entry-sub">Seth Hirachand Mutha College</div>
+        </div>
+    </div>
+</div>
+            <div id="contact-pane" class="workspace-view">
+                <h2 class="view-title">Terminal Connection Gateway</h2>
+                <form class="gateway-form" onsubmit="event.preventDefault(); alert('Data packet routed seamlessly.');">
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email Pipeline" required>
+                    <textarea rows="6" placeholder="Write message payloads..." required></textarea>
+                    <button type="submit" class="btn-submit">Transmit Message</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <div id="system-modal" class="system-modal-layer" onclick="dismissCinematicView()">
+        <div class="modal-content-stage" onclick="event.stopPropagation()">
+            <button class="modal-close-trigger" onclick="dismissCinematicView()"><i class="fa-solid fa-xmark"></i></button>
+            <img id="modal-image-target" src="" class="modal-view-render" alt="Credential Stage">
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <script>
+        /* ==========================================
+           1. CORE ROUTING CONTROLLER
+           ========================================== */
+        const tabs = document.querySelectorAll('.hub-tab');
+        const views = document.querySelectorAll('.workspace-view');
+
+        tabs.forEach(tab => {
+            if (tab.classList.contains('filter-node')) return;
+            tab.addEventListener('click', () => {
+                tabs.forEach(btn => { if(!btn.classList.contains('filter-node')) btn.classList.remove('active-tab'); });
+                tab.classList.add('active-tab');
+                views.forEach(view => view.classList.remove('active-view'));
+                document.getElementById(tab.dataset.route).classList.add('active-view');
+            });
+        });
+
+        const filterButtons = document.querySelectorAll('.filter-node');
+        const projectCards = document.querySelectorAll('.project-node-card');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active-tab'));
+                button.classList.add('active-tab');
+                projectCards.forEach(card => {
+                    card.style.display = (button.dataset.filter === 'all' || card.dataset.group === button.dataset.filter) ? 'flex' : 'none';
+                });
+            });
+        });
+
+        function triggerCinematicView(imgSrc) {
+            document.getElementById('modal-image-target').src = imgSrc;
+            document.getElementById('system-modal').classList.add('modal-open');
+        }
+        function dismissCinematicView() {
+            document.getElementById('system-modal').classList.remove('modal-open');
+        }
+
+        /* ==========================================
+           2. 3D DEEP SPACE FLOATING PARTICLES SYSTEM
+           ========================================== */
+        const canvas = document.getElementById('ambient-3d-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.05;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.05;
+        });
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.z = Math.random() * 2 + 0.2;
+                this.radius = Math.random() * 2 * this.z;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.color = Math.random() > 0.5 ? 'rgba(102, 252, 241, 0.3)' : 'rgba(5, 117, 230, 0.3)';
+            }
+            update() {
+                this.x += this.speedX + mouseX * 0.02 * this.z;
+                this.y += this.speedY + mouseY * 0.02 * this.z;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = this.z * 4;
+                ctx.shadowColor = '#66fcf1';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        for (let i = 0; i < 75; i++) particles.push(new Particle());
+
+        function render3DBackground() {
+            ctx.fillStyle = 'rgba(2, 3, 8, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(render3DBackground);
+        }
+        render3DBackground();
+
+        /* ==========================================
+           3. INITIALIZE INTERACTIVE CARD TILT RULES
+           ========================================== */
+        if (window.innerWidth > 960) {
+            VanillaTilt.init(document.querySelectorAll("[data-tilt]"));
+        }
+    </script>
+</body>
+</html>
